@@ -63,20 +63,33 @@ const moviesURL = [
     });
 
     let file = fs.createWriteStream(`./img/moviePosters/${movie.id}.jpg`);
-    let stream = request({
-      uri: poster,
-      headers: {
-        accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
-        "accept-encoding": "gzip, deflate, br",
-        "accept-language": "en-US,en;q=0.9",
-        "cache-control": "max-age=0",
-        dnt: "1",
-        "upgrade-insecure-requests": "1",
-        "user-agent": fakeUa()
-      },
-      gzip: true
-    }).pipe(file);
+
+    await new Promise((resolve, reject) => {
+      let stream = request({
+        uri: poster,
+        headers: {
+          accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+          "accept-encoding": "gzip, deflate, br",
+          "accept-language": "en-US,en;q=0.9",
+          "cache-control": "max-age=0",
+          dnt: "1",
+          "upgrade-insecure-requests": "1",
+          "user-agent": fakeUa()
+        },
+        gzip: true
+      })
+        .pipe(file)
+        .on("finish", () => {
+          console.log(`Finished downloading ${title}'s poster.`);
+          resolve();
+        })
+        .on("error", error => {
+          reject(error);
+        });
+    }).catch(error => {
+      console.log(`Error downloading ${title}'s poster. ${error}`);
+    });
   }
 
   // fs.writeFileSync("./data.json", JSON.stringify(moviesData), "utf-8");
