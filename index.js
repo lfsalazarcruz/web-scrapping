@@ -1,6 +1,7 @@
 const request = require("request-promise");
 const cheerio = require("cheerio");
 const fakeUa = require("fake-useragent");
+const fs = require("fs");
 
 const moviesURL = [
   "https://www.imdb.com/title/tt0848228/?ref_=fn_al_tt_1",
@@ -8,6 +9,8 @@ const moviesURL = [
 ];
 
 (async () => {
+  let moviesData = [];
+
   for (let movie of moviesURL) {
     const response = await request({
       uri: movie,
@@ -43,11 +46,16 @@ const moviesURL = [
       genres.push(genre);
     });
 
-    console.log(`title: ${title}`);
-    console.log(`rating: ${rating}`);
-    console.log(`poster: ${poster}`);
-    console.log(`total ratings: ${totalRatings}`);
-    console.log(`release date ${releaseDate}`);
-    console.log(`genres: ${genres}`);
+    moviesData.push({
+      title,
+      rating,
+      poster,
+      totalRatings,
+      releaseDate,
+      genres
+    });
   }
+
+  fs.writeFileSync("./data.json", JSON.stringify(moviesData), "utf-8");
+  console.log(moviesData);
 })();
