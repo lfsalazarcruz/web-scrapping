@@ -9,6 +9,7 @@ const URL = "https://www.imdb.com/title/tt0848228/?ref_=fn_al_tt_1";
   let $ = cheerio.load(response);
 
   let title = $('div[class="title_wrapper"] > h1').text();
+  let rating = $('span[itemprop="ratingValue"]').text();
 
-  console.log(title);
+  console.log(title, rating);
 })();
