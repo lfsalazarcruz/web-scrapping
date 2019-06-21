@@ -1,19 +1,26 @@
-const request = require("request-promise");
+const requestPromise = require("request-promise");
 const cheerio = require("cheerio");
 const fakeUa = require("fake-useragent");
 const fs = require("fs");
+const request = require("request");
 
 const moviesURL = [
-  "https://www.imdb.com/title/tt0848228/?ref_=fn_al_tt_1",
-  "https://www.imdb.com/title/tt4154796/?ref_=nv_sr_1?ref_=nv_sr_1"
+  {
+    url: "https://www.imdb.com/title/tt0848228/?ref_=fn_al_tt_1",
+    id: "avengers"
+  },
+  {
+    url: "https://www.imdb.com/title/tt4154796/?ref_=nv_sr_1?ref_=nv_sr_1",
+    id: "avengers endgame"
+  }
 ];
 
 (async () => {
   let moviesData = [];
 
   for (let movie of moviesURL) {
-    const response = await request({
-      uri: movie,
+    const response = await requestPromise({
+      uri: movie.url,
       headers: {
         accept:
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
@@ -54,8 +61,24 @@ const moviesURL = [
       releaseDate,
       genres
     });
+
+    let file = fs.createWriteStream(`./img/moviePosters/${movie.id}.jpg`);
+    let stream = request({
+      uri: poster,
+      headers: {
+        accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "en-US,en;q=0.9",
+        "cache-control": "max-age=0",
+        dnt: "1",
+        "upgrade-insecure-requests": "1",
+        "user-agent": fakeUa()
+      },
+      gzip: true
+    }).pipe(file);
   }
 
-  fs.writeFileSync("./data.json", JSON.stringify(moviesData), "utf-8");
-  console.log(moviesData);
+  // fs.writeFileSync("./data.json", JSON.stringify(moviesData), "utf-8");
+  // console.log(moviesData);
 })();
