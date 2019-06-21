@@ -22,8 +22,27 @@ const URL = "https://www.imdb.com/title/tt0848228/?ref_=fn_al_tt_1";
 
   let $ = cheerio.load(response);
 
-  let title = $('div[class="title_wrapper"] > h1').text();
+  let title = $('div[class="title_wrapper"] > h1')
+    .text()
+    .trim();
   let rating = $('span[itemprop="ratingValue"]').text();
+  let poster = $('div[class="poster"] > a > img').attr("src");
+  let totalRatings = $('span[itemprop="ratingCount"]').text();
+  let releaseDate = $('a[title="See more release dates"]')
+    .text()
+    .trim();
+  let genres = [];
 
-  console.log(title, rating);
+  $('div[class="subtext"] > a[href^="/search"]').each((i, elm) => {
+    let genre = $(elm).text();
+
+    genres.push(genre);
+  });
+
+  console.log(`title: ${title}`);
+  console.log(`rating: ${rating}`);
+  console.log(`poster: ${poster}`);
+  console.log(`total ratings: ${totalRatings}`);
+  console.log(`release date ${releaseDate}`);
+  console.log(`genres: ${genres}`);
 })();
